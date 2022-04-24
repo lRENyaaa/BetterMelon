@@ -1,0 +1,14 @@
+name: BetterMelon
+version: '${project.version}'
+main: com.renyuansurvival.bettermelon.BetterMelon
+api-version: 1.13
+authors: [ RENaa_FD ]
+softdepend: [ Residence ]
+commands:
+  bettermelon:
+    description: "BetterMelon Command"
+    usage: "/bettermelon reload"
+permissions:
+  bettermelon.reload:
+    description: "重载插件的权限"
+    default: op

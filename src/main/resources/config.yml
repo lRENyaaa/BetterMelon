@@ -1,0 +1,32 @@
+#插件内的信息
+message:
+  #发送信息时的前缀
+  prefix: "&f[&6服务器&f] "
+  #执行命令时的信息
+  command: "/bettermelon reload - 重载插件"
+  #重载插件时的信息
+  reload: "插件已重载"
+  #没有权限时发送的信息
+  no-permission: "你没有权限"
+  #是否向玩家发送信息
+  enable: true
+  #向玩家发送的信息
+  message: "你采集了一个"
+  #西瓜
+  melon: "西瓜"
+  #南瓜
+  pumpkin: "南瓜"
+
+#可以采集的植物
+type:
+  #西瓜
+  melon: true
+  #南瓜
+  pumpkin: true
+
+settings:
+  #是否以精准采集附魔采集方块
+  silk-touch: false
+  #是否不掉落物品直接进入玩家背包
+  #false掉落物品, true不掉落物品并且直接进入玩家背包
+  no-drop: false
