@@ -66,7 +66,9 @@ public final class BetterMelon extends JavaPlugin implements Listener {
                         }
                         List<ItemStack> dropList = new ArrayList<>(dropsItem);
                         block.setType(Material.AIR);
-                        player.getInventory().addItem(dropList.get(0));
+                        for (ItemStack drops : dropList){
+                            player.getInventory().addItem(drops);
+                        }
                     }else{
                         if (getConfig().getBoolean("settings.silk-touch", false)) {
                             block.breakNaturally(silkAxe);
