@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -28,66 +29,52 @@ import static java.util.Objects.requireNonNull;
 public final class BetterMelon extends JavaPlugin implements Listener {
 
     private boolean Residence = true;
-    private String Prefix;
-    private ItemStack silkAxe;
+    private final List<String> list = new ArrayList<>();
+    private static final ItemStack silkAxe = new ItemStack(Material.STONE_AXE);
+    private static String Prefix;
+    private static ItemStack Axe;
+    private static BetterMelon Plugin;
+    private static String Melon;
+    private static String Pumpkin;
 
     @Override
     public void onEnable() {
-        saveDefaultConfig();
-        Prefix = getConfig().getString("message.prefix","&f[&6服务器&f] ");
-        Bukkit.getPluginManager().registerEvents(this,this);
-        requireNonNull(getCommand("bettermelon")).setExecutor(this);
-        requireNonNull(getCommand("bettermelon")).setTabCompleter(this);
+        Plugin = this;
+        list.add("reload");
+        silkAxe.addUnsafeEnchantment(Enchantment.SILK_TOUCH, 1);
         try{
             ResidenceApi.getResidenceManager();
         }catch (NoClassDefFoundError error){
             Residence = false;
         }
-        silkAxe = new ItemStack(Material.STONE_AXE);
-        silkAxe.addEnchantment(Enchantment.SILK_TOUCH, 1);
-
+        saveDefaultConfig();
+        refreshConfig();
+        Bukkit.getPluginManager().registerEvents(this,this);
+        requireNonNull(getCommand("bettermelon")).setExecutor(this);
+        requireNonNull(getCommand("bettermelon")).setTabCompleter(this);
     }
 
     @EventHandler
     public void PlayerInteractEvent(PlayerInteractEvent event){
-        if (!event.isCancelled()) {
-            Block block = event.getClickedBlock();
-            ItemStack item = event.getItem();
-            Player player = event.getPlayer();
-            if (event.getHand().equals(EquipmentSlot.HAND) && block != null && item == null && !(Residence && ResidenceApi.getResidenceManager().getByLoc(block.getLocation()) != null && !ResidenceApi.getResidenceManager().getByLoc(block.getLocation()).getPermissions().playerHas(event.getPlayer(), Flags.destroy,true))) {
-                Material blockType = block.getType();
-                if (((getConfig().getBoolean("type.melon",true) && blockType.equals(Material.MELON)) || (getConfig().getBoolean("type.pumpkin",true) && blockType.equals(Material.PUMPKIN))) && event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
-                    if(getConfig().getBoolean("settings.no-drop",false)){
-                        Collection<ItemStack> dropsItem;
-                        if(getConfig().getBoolean("settings.silk-touch",false)) {
-                            dropsItem = block.getDrops(silkAxe);
-                        }else{
-                            dropsItem = block.getDrops();
-                        }
-                        List<ItemStack> dropList = new ArrayList<>(dropsItem);
-                        block.setType(Material.AIR);
-                        for (ItemStack drops : dropList){
-                            player.getInventory().addItem(drops);
-                        }
-                    }else{
-                        if (getConfig().getBoolean("settings.silk-touch", false)) {
-                            block.breakNaturally(silkAxe);
-                        } else {
-                            block.breakNaturally();
-                        }
-                    }
-                    if (getConfig().getBoolean("message.enable",false)) {
-                        String blockName;
-                        if (blockType.equals(Material.MELON)) {
-                            blockName = getConfig().getString("message.melon", "西瓜");
-                        } else {
-                            blockName = getConfig().getString("message.pumpkin", "南瓜");
-                        }
-                        if (getConfig().getBoolean("message.enable", false)) {
-                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', Prefix + getConfig().getString("message.message", "你采集了一个") + blockName));
-                        }
-                    }
+        Block block = event.getClickedBlock();
+        Player player = event.getPlayer();
+        if (!event.isCancelled() &&
+                !(Residence && ResidenceApi.getResidenceManager().getByLoc(block.getLocation()) != null && !ResidenceApi.getResidenceManager().getByLoc(block.getLocation()).getPermissions().playerHas(player,Flags.destroy,true)) &&
+                event.getItem() == null && event.getAction().equals(Action.RIGHT_CLICK_BLOCK) && block != null && event.getHand().equals(EquipmentSlot.HAND) &&
+                ((getConfig().getBoolean("type.melon",true) && block.getType().equals(Material.MELON)) || (getConfig().getBoolean("type.pumpkin",true) && block.getType().equals(Material.PUMPKIN)))) {
+            Material blockType = block.getType();
+            if(getConfig().getBoolean("settings.no-drop",false)){
+                Collection<ItemStack> dropsItem = block.getDrops(Axe);
+                block.setType(Material.AIR);
+                for (ItemStack drops : dropsItem){
+                    player.getInventory().addItem(drops);
                 }
+            }else{
+                block.breakNaturally(Axe);
+            }
+            if (getConfig().getBoolean("message.enable",false)) {
+                String blockName = blockType.equals(Material.MELON) ? Melon : Pumpkin;
+                sendMessage(player,getConfig().getString("message.message", "你采集了一个") + blockName);
             }
         }
     }
@@ -97,24 +84,35 @@ public final class BetterMelon extends JavaPlugin implements Listener {
         if (args.length == 1 && args[0].equalsIgnoreCase("reload")){
             if (sender.hasPermission("bettermelon.reload")) {
                 reloadConfig();
-                Prefix = getConfig().getString("message.prefix", "&f[&6服务器&f] ");
-                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', Prefix + getConfig().getString("message.reload", "插件已重载")));
+                refreshConfig();
+                sendMessage(sender, getConfig().getString("message.reload","插件已重载"));
             }else{
-                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', Prefix + getConfig().getString("message.no-permission", "你没有权限")));
+                sendMessage(sender, getConfig().getString("message.no-permission","你没有权限"));
             }
         }else{
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&',Prefix + getConfig().getString("message.command", "/bettermelon reload - 重载插件")));
+            sendMessage(sender, getConfig().getString("message.command", "/bettermelon reload - 重载插件"));
         }
         return true;
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if (args.length == 1){
-            List<String> list = new ArrayList<>();
-            list.add("reload");
-            return list;
-        }
-        return null;
+        return args.length == 1 ? list : null ;
+    }
+
+    public static BetterMelon getPlugin() {
+        return Plugin;
+    }
+
+    public static void refreshConfig(){
+        FileConfiguration config = getPlugin().getConfig();
+        Axe = config.getBoolean("settings.silk-touch",false) ? silkAxe : new ItemStack(Material.STONE_AXE);
+        Prefix = config.getString("message.prefix","&f[&6服务器&f] ");
+        Melon = config.getString("message.melon", "西瓜");
+        Pumpkin = config.getString("message.pumpkin", "南瓜");
+    }
+
+    public static void sendMessage(CommandSender player, String message){
+        player.sendMessage(ChatColor.translateAlternateColorCodes('&', Prefix + message));
     }
 }
