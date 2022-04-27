@@ -9,7 +9,6 @@ import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -20,7 +19,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import static java.util.Objects.requireNonNull;
@@ -30,9 +28,7 @@ public final class BetterMelon extends JavaPlugin implements Listener {
 
     private boolean Residence = true;
     private final List<String> list = new ArrayList<>();
-    private static final ItemStack silkAxe = new ItemStack(Material.STONE_AXE);
     private static String Prefix;
-    private static ItemStack Axe;
     private static BetterMelon Plugin;
     private static String Melon;
     private static String Pumpkin;
@@ -41,7 +37,6 @@ public final class BetterMelon extends JavaPlugin implements Listener {
     public void onEnable() {
         Plugin = this;
         list.add("reload");
-        silkAxe.addUnsafeEnchantment(Enchantment.SILK_TOUCH, 1);
         try{
             ResidenceApi.getResidenceManager();
         }catch (NoClassDefFoundError error){
@@ -64,13 +59,21 @@ public final class BetterMelon extends JavaPlugin implements Listener {
                 ((getConfig().getBoolean("type.melon",true) && block.getType().equals(Material.MELON)) || (getConfig().getBoolean("type.pumpkin",true) && block.getType().equals(Material.PUMPKIN)))) {
             Material blockType = block.getType();
             if(getConfig().getBoolean("settings.no-drop",false)){
-                Collection<ItemStack> dropsItem = block.getDrops(Axe);
                 block.setType(Material.AIR);
-                for (ItemStack drops : dropsItem){
-                    player.getInventory().addItem(drops);
+                if(getConfig().getBoolean("settings.silk-touch",false)){
+                    player.getInventory().addItem(new ItemStack(blockType));
+                }else{
+                    for (ItemStack drops : block.getDrops()) {
+                        player.getInventory().addItem(drops);
+                    }
                 }
             }else{
-                block.breakNaturally(Axe);
+                if(getConfig().getBoolean("settings.silk-touch",false)) {
+                    block.setType(Material.AIR);
+                    block.getWorld().dropItem(block.getLocation(), new ItemStack(blockType));
+                }else{
+                    block.breakNaturally();
+                }
             }
             if (getConfig().getBoolean("message.enable",false)) {
                 String blockName = blockType.equals(Material.MELON) ? Melon : Pumpkin;
@@ -106,7 +109,6 @@ public final class BetterMelon extends JavaPlugin implements Listener {
 
     public static void refreshConfig(){
         FileConfiguration config = getPlugin().getConfig();
-        Axe = config.getBoolean("settings.silk-touch",false) ? silkAxe : new ItemStack(Material.STONE_AXE);
         Prefix = config.getString("message.prefix","&f[&6服务器&f] ");
         Melon = config.getString("message.melon", "西瓜");
         Pumpkin = config.getString("message.pumpkin", "南瓜");
