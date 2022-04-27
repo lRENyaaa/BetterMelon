@@ -3,10 +3,10 @@ name: Maven build
 on:
   push:
     branches:
-    - master
+    - legacy
   pull_request:
     branches:
-    - master
+    - legacy
 
 jobs:
   build:
@@ -36,7 +36,7 @@ jobs:
       if: success()
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "dev"
+        automatic_release_tag: "dev-legacy"
         prerelease: false
         title: "BetterMelon 自动构建版本"
         files: |
