@@ -38,7 +38,7 @@ jobs:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "dev-legacy"
         prerelease: false
-        title: "BetterMelon 自动构建版本"
+        title: "BetterMelon-legacy 自动构建版本"
         files: |
           target/BetterMelon.jar
         
