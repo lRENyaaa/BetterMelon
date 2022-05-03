@@ -6,7 +6,7 @@
 
     <groupId>com.renyuansurvival</groupId>
     <artifactId>BetterMelon</artifactId>
-    <version>1.4.0-legacy</version>
+    <version>1.4.1-legacy</version>
     <packaging>jar</packaging>
 
     <name>BetterMelon</name>
