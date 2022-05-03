@@ -53,9 +53,10 @@ public final class BetterMelon extends JavaPlugin implements Listener {
     public void PlayerInteractEvent(PlayerInteractEvent event){
         Block block = event.getClickedBlock();
         Player player = event.getPlayer();
+        EquipmentSlot hand = event.getHand();
         if (!event.isCancelled() &&
                 !(Residence && ResidenceApi.getResidenceManager().getByLoc(block.getLocation()) != null && !ResidenceApi.getResidenceManager().getByLoc(block.getLocation()).getPermissions().playerHas(player,Flags.destroy,true)) &&
-                event.getItem() == null && event.getAction().equals(Action.RIGHT_CLICK_BLOCK) && block != null && event.getHand().equals(EquipmentSlot.HAND) &&
+                event.getItem() == null && event.getAction().equals(Action.RIGHT_CLICK_BLOCK) && block != null && hand != null && hand.equals(EquipmentSlot.HAND) &&
                 ((getConfig().getBoolean("type.melon",true) && block.getType().equals(Material.MELON)) || (getConfig().getBoolean("type.pumpkin",true) && block.getType().equals(Material.PUMPKIN)))) {
             Material blockType = block.getType();
             if(getConfig().getBoolean("settings.no-drop",false)){
