@@ -56,7 +56,7 @@ public final class BetterMelon extends JavaPlugin implements Listener {
         if (!event.isCancelled() &&
                 !(Residence && ResidenceApi.getResidenceManager().getByLoc(block.getLocation()) != null && !ResidenceApi.getResidenceManager().getByLoc(block.getLocation()).getPermissions().playerHas(player,Flags.destroy,true)) &&
                 event.getItem() == null && event.getAction().equals(Action.RIGHT_CLICK_BLOCK) && block != null && event.getHand().equals(EquipmentSlot.HAND) &&
-                ((getConfig().getBoolean("type.melon",true) && block.getType().equals(Material.MELON_BLOCK)) || (getConfig().getBoolean("type.pumpkin",true) && block.getType().equals(Material.PUMPKIN)))) {
+                ((getConfig().getBoolean("type.melon",true) && block.getType().equals(Material.MELON)) || (getConfig().getBoolean("type.pumpkin",true) && block.getType().equals(Material.PUMPKIN)))) {
             Material blockType = block.getType();
             if(getConfig().getBoolean("settings.no-drop",false)){
                 block.setType(Material.AIR);
@@ -76,7 +76,7 @@ public final class BetterMelon extends JavaPlugin implements Listener {
                 }
             }
             if (getConfig().getBoolean("message.enable",false)) {
-                String blockName = blockType.equals(Material.MELON_BLOCK) ? Melon : Pumpkin;
+                String blockName = blockType.equals(Material.MELON) ? Melon : Pumpkin;
                 sendMessage(player,getConfig().getString("message.message", "你采集了一个") + blockName);
             }
         }
