@@ -37,9 +37,7 @@ public final class BetterMelon extends JavaPlugin implements Listener {
     public void onEnable() {
         Plugin = this;
         list.add("reload");
-        try{
-            ResidenceApi.getResidenceManager();
-        }catch (NoClassDefFoundError error){
+        if (Bukkit.getPluginManager().getPlugin("Residence") == null){
             Residence = false;
         }
         saveDefaultConfig();
