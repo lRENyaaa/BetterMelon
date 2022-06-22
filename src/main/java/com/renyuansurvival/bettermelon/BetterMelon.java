@@ -18,7 +18,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static java.util.Objects.requireNonNull;
@@ -27,7 +27,7 @@ import static java.util.Objects.requireNonNull;
 public final class BetterMelon extends JavaPlugin implements Listener {
 
     private boolean Residence = true;
-    private final List<String> list = new ArrayList<>();
+    private final List<String> list = Collections.singletonList("reload");
     private static String Prefix;
     private static BetterMelon Plugin;
     private static String Melon;
@@ -36,10 +36,7 @@ public final class BetterMelon extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         Plugin = this;
-        list.add("reload");
-        if (Bukkit.getPluginManager().getPlugin("Residence") == null){
-            Residence = false;
-        }
+        if (Bukkit.getPluginManager().getPlugin("Residence") == null) Residence = false;
         saveDefaultConfig();
         refreshConfig();
         Bukkit.getPluginManager().registerEvents(this,this);
@@ -83,18 +80,21 @@ public final class BetterMelon extends JavaPlugin implements Listener {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (args.length == 1 && args[0].equalsIgnoreCase("reload")){
-            if (sender.hasPermission("bettermelon.reload")) {
-                reloadConfig();
-                refreshConfig();
-                sendMessage(sender, getConfig().getString("message.reload","插件已重载"));
-            }else{
-                sendMessage(sender, getConfig().getString("message.no-permission","你没有权限"));
-            }
-        }else{
-            sendMessage(sender, getConfig().getString("message.command", "/bettermelon reload - 重载插件"));
+        if(!sender.hasPermission("bettermelon.reload")){
+            sendMessage(sender, getConfig().getString("message.no-permission","你没有权限"));
+            return true;
         }
+
+        if (args.length == 1 && args[0].equalsIgnoreCase("reload")){
+            reloadConfig();
+            refreshConfig();
+            sendMessage(sender, getConfig().getString("message.reload","插件已重载"));
+            return true;
+        }
+
+        sendMessage(sender, getConfig().getString("message.command", "/bettermelon reload - 重载插件"));
         return true;
+
     }
 
     @Override
